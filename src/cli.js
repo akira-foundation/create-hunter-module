@@ -16,12 +16,17 @@ import {
   replacePlaceholders,
   renameFiles,
   removeConfigureScript,
+  addWorkbenchToGitignore,
 } from "./replacer.js";
 import { runCommand, hasCommand } from "./utils.js";
 
 const VERSION = "1.0.0";
 const SKELETON_REPO_URL =
   "https://github.com/akira-foundation/hunter-module-skeleton";
+
+function terminalLink(url, text = url) {
+  return `\x1b]8;;${url}\x07${text}\x1b]8;;\x07`;
+}
 
 function showBanner() {
   console.log();
@@ -53,7 +58,7 @@ function showStarPrompt() {
   console.log(chalk.gray("  ────────────────────────────────────────"));
   console.log();
   console.log(chalk.yellow(`  ⭐ If you like Hunter, give us a star!`));
-  console.log(chalk.gray(`     ${SKELETON_REPO_URL}`));
+  console.log(chalk.gray(`     ${terminalLink(SKELETON_REPO_URL)}`));
   console.log();
   console.log(chalk.gray("  ────────────────────────────────────────"));
   console.log();
@@ -163,6 +168,7 @@ export async function run() {
   const cleanupSpinner = ora("Cleaning up...").start();
   try {
     await removeConfigureScript(targetDir);
+    await addWorkbenchToGitignore(targetDir);
     cleanupSpinner.succeed("Cleaned up");
   } catch (error) {
     cleanupSpinner.fail("Failed to clean up");
@@ -211,9 +217,9 @@ export async function run() {
   if (wantsStar) {
     const opened = await openUrl(SKELETON_REPO_URL);
     if (opened) {
-      console.log(chalk.green("  Thanks for your support! ❤️"));
+      console.log(chalk.green("  Thanks for your support!"));
     } else {
-      console.log(chalk.gray(`  Visit: ${SKELETON_REPO_URL}`));
+      console.log(chalk.gray(`  Visit: ${terminalLink(SKELETON_REPO_URL)}`));
     }
   }
 

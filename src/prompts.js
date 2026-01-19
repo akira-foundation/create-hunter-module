@@ -1,5 +1,5 @@
 import prompts from "prompts";
-import { slugify, studlyCase, getGitConfig } from "./utils.js";
+import { slugify, studlyCase, titleCase, getGitConfig } from "./utils.js";
 
 export async function getModuleConfig(moduleName, options) {
   const gitName = getGitConfig("user.name");
@@ -96,6 +96,7 @@ export async function getModuleConfig(moduleName, options) {
       options.namespace || answers.vendorNamespace || studlyCase(vendorName),
     moduleName: finalModuleName,
     moduleSlug: slugify(finalModuleName),
+    moduleTitle: titleCase(finalModuleName),
     studlyModuleName: studlyCase(finalModuleName),
     description: options.description || answers.description,
     directory:

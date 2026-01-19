@@ -49,6 +49,7 @@ export async function replacePlaceholders(directory, config) {
     ":VendorNamespace:": config.vendorNamespace,
     ":module_name": config.moduleName,
     ":module_slug": config.moduleSlug,
+    ":module_title": config.moduleTitle,
     ":StudlyModuleName:": config.studlyModuleName,
     ":package_description": config.description,
     ":MODULE_SLUG_UPPER_ENABLED": `${upperSnakeCase(config.moduleSlug)}_ENABLED`,
@@ -108,8 +109,24 @@ export async function renameFiles(directory, config) {
       to: path.join(directory, "config", `${config.moduleSlug}.php`),
     },
     {
-      from: path.join(directory, "resources", "js", "pages", ":module_slug"),
-      to: path.join(directory, "resources", "js", "pages", config.moduleSlug),
+      from: path.join(directory, "routes", ":module_slug.php"),
+      to: path.join(directory, "routes", `${config.moduleSlug}.php`),
+    },
+    {
+      from: path.join(
+        directory,
+        "resources",
+        "js",
+        "pages",
+        ":StudlyModuleName:",
+      ),
+      to: path.join(
+        directory,
+        "resources",
+        "js",
+        "pages",
+        config.studlyModuleName,
+      ),
     },
   ];
 
@@ -125,5 +142,22 @@ export async function removeConfigureScript(directory) {
 
   if (await fs.pathExists(configurePath)) {
     await fs.remove(configurePath);
+  }
+}
+
+export async function addWorkbenchToGitignore(directory) {
+  const gitignorePath = path.join(directory, ".gitignore");
+
+  if (await fs.pathExists(gitignorePath)) {
+    let content = await fs.readFile(gitignorePath, "utf-8");
+
+    // Add workbench section if not already present
+    if (!content.includes("/workbench")) {
+      content += `
+# Workbench (local development only)
+/workbench
+`;
+      await fs.writeFile(gitignorePath, content);
+    }
   }
 }
