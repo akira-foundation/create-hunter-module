@@ -1,0 +1,43 @@
+{
+  "name": "create-hunter-module",
+  "version": "1.0.0",
+  "description": "CLI to scaffold Hunter modules from the official skeleton template",
+  "author": "kidiatoliny <kidiatoliny@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-hunter-module": "./bin/index.js"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akira-foundation/create-hunter-module"
+  },
+  "bugs": {
+    "url": "https://github.com/akira-foundation/create-hunter-module/issues"
+  },
+  "homepage": "https://github.com/akira-foundation/create-hunter-module#readme",
+  "keywords": [
+    "hunter",
+    "laravel",
+    "module",
+    "scaffold",
+    "cli",
+    "generator",
+    "template"
+  ],
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "degit": "^2.8.4",
+    "fs-extra": "^11.3.0",
+    "ora": "^8.2.0",
+    "prompts": "^2.4.2"
+  }
+}
