@@ -145,17 +145,23 @@ export async function removeConfigureScript(directory) {
   }
 }
 
-export async function addWorkbenchToGitignore(directory) {
+export async function addDevRuntimeToGitignore(directory) {
   const gitignorePath = path.join(directory, ".gitignore");
 
   if (await fs.pathExists(gitignorePath)) {
     let content = await fs.readFile(gitignorePath, "utf-8");
 
-    // Add workbench section if not already present
-    if (!content.includes("/workbench")) {
+    // Add dev runtime files if not already present
+    if (!content.includes("dev/vendor")) {
       content += `
-# Workbench (local development only)
-/workbench
+# Dev environment runtime files
+/dev/vendor
+/dev/node_modules
+/dev/.env
+/dev/composer.lock
+/dev/package-lock.json
+/dev/public/build
+/dev/database/*.sqlite
 `;
       await fs.writeFile(gitignorePath, content);
     }

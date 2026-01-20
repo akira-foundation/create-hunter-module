@@ -16,7 +16,7 @@ import {
   replacePlaceholders,
   renameFiles,
   removeConfigureScript,
-  addWorkbenchToGitignore,
+  addDevRuntimeToGitignore,
 } from "./replacer.js";
 import { runCommand, hasCommand } from "./utils.js";
 
@@ -168,7 +168,7 @@ export async function run() {
   const cleanupSpinner = ora("Cleaning up...").start();
   try {
     await removeConfigureScript(targetDir);
-    await addWorkbenchToGitignore(targetDir);
+    await addDevRuntimeToGitignore(targetDir);
     cleanupSpinner.succeed("Cleaned up");
   } catch (error) {
     cleanupSpinner.fail("Failed to clean up");
