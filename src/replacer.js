@@ -17,6 +17,19 @@ const EXCLUDED_PATTERNS = [
   ".eot",
 ];
 
+const WINDOWS_PLACEHOLDER_CHAR = "\uf03a";
+const IS_WINDOWS = process.platform === "win32";
+
+function placeholderToken(token) {
+  return IS_WINDOWS ? token.replaceAll(":", WINDOWS_PLACEHOLDER_CHAR) : token;
+}
+
+function placeholderVariants(token) {
+  return IS_WINDOWS
+    ? [token, token.replaceAll(":", WINDOWS_PLACEHOLDER_CHAR)]
+    : [token];
+}
+
 function shouldProcessFile(filePath) {
   return !EXCLUDED_PATTERNS.some((pattern) => filePath.includes(pattern));
 }
@@ -41,19 +54,29 @@ async function getAllFiles(dir) {
 }
 
 export async function replacePlaceholders(directory, config) {
-  const replacements = {
-    ":author_name": config.authorName,
-    ":author_email": config.authorEmail,
-    ":vendor_name": config.vendorName,
-    ":vendor_slug": config.vendorSlug,
-    ":VendorNamespace:": config.vendorNamespace,
-    ":module_name": config.moduleName,
-    ":module_slug": config.moduleSlug,
-    ":module_title": config.moduleTitle,
-    ":StudlyModuleName:": config.studlyModuleName,
-    ":package_description": config.description,
-    ":MODULE_SLUG_UPPER_ENABLED": `${upperSnakeCase(config.moduleSlug)}_ENABLED`,
-  };
+  const replacementEntries = [
+    [":author_name", config.authorName],
+    [":author_email", config.authorEmail],
+    [":vendor_name", config.vendorName],
+    [":vendor_slug", config.vendorSlug],
+    [":VendorNamespace:", config.vendorNamespace],
+    [":module_name", config.moduleName],
+    [":module_slug", config.moduleSlug],
+    [":module_title", config.moduleTitle],
+    [":StudlyModuleName:", config.studlyModuleName],
+    [":package_description", config.description],
+    [
+      ":MODULE_SLUG_UPPER_ENABLED",
+      `${upperSnakeCase(config.moduleSlug)}_ENABLED`,
+    ],
+  ];
+
+  const replacements = new Map();
+  for (const [token, value] of replacementEntries) {
+    for (const variant of placeholderVariants(token)) {
+      replacements.set(variant, value);
+    }
+  }
 
   const files = await getAllFiles(directory);
 
@@ -61,7 +84,7 @@ export async function replacePlaceholders(directory, config) {
     let content = await fs.readFile(file, "utf-8");
     let modified = false;
 
-    for (const [placeholder, value] of Object.entries(replacements)) {
+    for (const [placeholder, value] of replacements.entries()) {
       if (content.includes(placeholder)) {
         content = content.split(placeholder).join(value);
         modified = true;
@@ -80,7 +103,7 @@ export async function renameFiles(directory, config) {
       from: path.join(
         directory,
         "src",
-        ":StudlyModuleName:ServiceProvider.php",
+        `${placeholderToken(":StudlyModuleName:")}ServiceProvider.php`,
       ),
       to: path.join(
         directory,
@@ -94,7 +117,7 @@ export async function renameFiles(directory, config) {
         "src",
         "Http",
         "Controllers",
-        ":StudlyModuleName:Controller.php",
+        `${placeholderToken(":StudlyModuleName:")}Controller.php`,
       ),
       to: path.join(
         directory,
@@ -105,11 +128,19 @@ export async function renameFiles(directory, config) {
       ),
     },
     {
-      from: path.join(directory, "config", ":module_slug.php"),
+      from: path.join(
+        directory,
+        "config",
+        `${placeholderToken(":module_slug")}.php`,
+      ),
       to: path.join(directory, "config", `${config.moduleSlug}.php`),
     },
     {
-      from: path.join(directory, "routes", ":module_slug.php"),
+      from: path.join(
+        directory,
+        "routes",
+        `${placeholderToken(":module_slug")}.php`,
+      ),
       to: path.join(directory, "routes", `${config.moduleSlug}.php`),
     },
     {
@@ -118,7 +149,7 @@ export async function renameFiles(directory, config) {
         "resources",
         "js",
         "pages",
-        ":StudlyModuleName:",
+        placeholderToken(":StudlyModuleName:"),
       ),
       to: path.join(
         directory,
